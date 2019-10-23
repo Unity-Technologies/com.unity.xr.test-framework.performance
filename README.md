@@ -21,13 +21,13 @@ To install the Performance Testing Extension package
 ``` json
 {
     "dependencies": {
-        "com.unity.test-framework.performance": "1.0.4-preview",
+        "com.unity.xr.test-framework.performance": "ssh://git@github.cds.internal.unity3d.com/unity/com.unity.xr.test-framework.performance.git",
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.unitywebrequest": "1.0.0",
         "com.unity.modules.vr": "1.0.0"
       },
       "testables": [
-        "com.unity.test-framework.performance"
+        "com.unity.xr.test-framework.performance"
       ]
 }
 ```
