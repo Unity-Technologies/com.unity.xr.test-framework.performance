@@ -106,8 +106,8 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             ProcessorCount = SystemInfo.processorCount,
             GraphicsDeviceName = SystemInfo.graphicsDeviceName,
             SystemMemorySize = SystemInfo.systemMemorySize,
+            XrModel = SystemInfo.deviceUniqueIdentifier,
 #if ENABLE_VR
-            XrModel = UnityEngine.XR.XRDevice.model,
             XrDevice = UnityEngine.XR.XRSettings.loadedDeviceName
 #endif
         };
@@ -191,6 +191,7 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
         playerSettings.ScriptingBackend = UnityEditor.PlayerSettings
             .GetScriptingBackend(UnityEditor.EditorUserBuildSettings.selectedBuildTargetGroup)
             .ToString();
+        
 #if OCULUS_SDK
         if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
         {
@@ -206,13 +207,16 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
 #endif
         playerSettings.RenderThreadingMode = UnityEditor.PlayerSettings.graphicsJobs ? "GraphicsJobs" :
             UnityEditor.PlayerSettings.MTRendering ? "MultiThreaded" : "SingleThreaded";
-        playerSettings.AndroidMinimumSdkVersion = UnityEditor.PlayerSettings.Android.minSdkVersion.ToString();
-        playerSettings.AndroidTargetSdkVersion = UnityEditor.PlayerSettings.Android.targetSdkVersion.ToString();
         playerSettings.Batchmode = UnityEditorInternal.InternalEditorUtility.inBatchMode.ToString();
         playerSettings.EnabledXrTargets = new List<string>(UnityEditor.PlayerSettings.GetVirtualRealitySDKs(EditorUserBuildSettings.selectedBuildTargetGroup));
         playerSettings.EnabledXrTargets.Sort();
         playerSettings.ScriptingBackend =
             UnityEditor.PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup).ToString();
+
+        // We're hijacking these two fields to store package info in
+        playerSettings.ScriptingRuntimeVersion = settings.PluginVersion;
+        playerSettings.AndroidMinimumSdkVersion = settings.XrManagementRevision;
+        playerSettings.AndroidTargetSdkVersion = settings.XrsdkRevision;
         return playerSettings;
     }
 
