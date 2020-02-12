@@ -24,6 +24,13 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
         get { return Path.Combine(Application.streamingAssetsPath, "PerformanceTestRunInfo.json"); }
     }
 
+    [SetUp]
+    public void TestSetup()
+    {
+        settings = Resources.Load<CurrentSettings>("settings");
+        Assert.IsNotNull(settings);
+    }
+
     [UnityTest, Order(0), PrebuildSetup(typeof(PlaymodeMetadataCollector))]
     public IEnumerator GetPlayerSettingsTest()
     {
@@ -106,7 +113,7 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             ProcessorCount = SystemInfo.processorCount,
             GraphicsDeviceName = SystemInfo.graphicsDeviceName,
             SystemMemorySize = SystemInfo.systemMemorySize,
-            XrModel = SystemInfo.deviceUniqueIdentifier,
+            XrModel = string.Format("deviceuniqueid|{0}|username|{1}", SystemInfo.deviceUniqueIdentifier, settings.Username),
 #if ENABLE_VR
             XrDevice = UnityEngine.XR.XRSettings.loadedDeviceName
 #endif
@@ -189,18 +196,14 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             UnityEditor.PlayerSettings.GetGraphicsAPIs(UnityEditor.EditorUserBuildSettings.activeBuildTarget)[0]
                 .ToString();
         playerSettings.ScriptingBackend = UnityEditor.PlayerSettings
-            .GetScriptingBackend(UnityEditor.EditorUserBuildSettings.selectedBuildTargetGroup)
+            .GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup)
             .ToString();
         
 #if OCULUS_SDK
-        if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
-        {
-            playerSettings.StereoRenderingPath = settings.StereoRenderingModeAndroid;
-        }
-        else
-        {
-            playerSettings.StereoRenderingPath = settings.StereoRenderingModeDesktop;
-        }
+        playerSettings.StereoRenderingPath = 
+            EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android ? 
+                settings.StereoRenderingModeAndroid : 
+                settings.StereoRenderingModeDesktop;
         
 #else
         playerSettings.StereoRenderingPath = UnityEditor.PlayerSettings.stereoRenderingPath.ToString();
@@ -214,7 +217,7 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             UnityEditor.PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup).ToString();
 
         // We're hijacking these two fields to store package info in
-        playerSettings.ScriptingRuntimeVersion = settings.PluginVersion;
+        playerSettings.ScriptingRuntimeVersion = string.Format("{0}|{1}", settings.PluginVersion, settings.DeviceRuntimeVersion);
         playerSettings.AndroidMinimumSdkVersion = settings.XrManagementRevision;
         playerSettings.AndroidTargetSdkVersion = settings.XrsdkRevision;
         return playerSettings;
