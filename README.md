@@ -1,4 +1,8 @@
-# Performance testing extension for Unity Test Runner
+# Performance testing extension for Unity Test Runner - customized for XR
+A forked version of the com.unity.test-framework.performance package (v1.0.4-preview) that includes a dependency on XR APIs for collection of XR metadata during performance test runs.
+
+Original documentation for the com.unity.test-framework.performance package (v1.0.4-preview) below.
+----
 
 The Unity Performance Testing Extension is a Unity Editor package that, when installed, provides an API and test case decorators to make it easier to take measurements/samples of Unity profiler markers, and other custom metrics outside of the profiler, within the Unity Editor and built players. It also collects configuration metadata, such as build and player settings, which is useful when comparing data for against different hardware and configurations.
 
