@@ -10,27 +10,30 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.TestTools;
 using System.Collections.Generic;
+#if ENABLE_VR
 using com.unity.xr.test.runtimesettings;
+#endif
 using UnityEditor;
 
 [Category("Performance")]
 public class PlaymodeMetadataCollector : IPrebuildSetup
 {
     private PerformanceTestRun m_TestRun;
+#if ENABLE_VR
     private static CurrentSettings settings;
-
+#endif
     private string m_TestRunPath
     {
         get { return Path.Combine(Application.streamingAssetsPath, "PerformanceTestRunInfo.json"); }
     }
-
+#if ENABLE_VR
     [SetUp]
     public void TestSetup()
     {
         settings = Resources.Load<CurrentSettings>("settings");
         Assert.IsNotNull(settings);
     }
-
+#endif
     [UnityTest, Order(0), PrebuildSetup(typeof(PlaymodeMetadataCollector))]
     public IEnumerator GetPlayerSettingsTest()
     {
@@ -150,7 +153,10 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
     public void Setup()
     {
 #if UNITY_EDITOR
+
+#if ENABLE_VR
         settings = Resources.Load<CurrentSettings>("settings");
+#endif
         m_TestRun = ReadPerformanceTestRunJson();
         m_TestRun.EditorVersion = GetEditorInfo();
         m_TestRun.PlayerSettings = GetPlayerSettings(m_TestRun.PlayerSettings);

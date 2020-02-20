@@ -72,6 +72,7 @@ namespace Unity.PerformanceTesting
             if (OnTestEnded != null) OnTestEnded();
             Active.LogOutput();
 
+#if PERF_AGGREGATIONS_ONLY
             // For XR team peformance tests
             // The large collection of samples collected seems to cause
             // intermittent timeouts to the player connection. 
@@ -84,7 +85,7 @@ namespace Unity.PerformanceTesting
                     sampleGroup.Samples.RemoveRange(1,sampleGroup.Samples.Count - 1);
                 }
             }
-
+#endif
             TestContext.Out.WriteLine("##performancetestresult:" + JsonUtility.ToJson(Active));
             Active = null;
             GC.Collect();
