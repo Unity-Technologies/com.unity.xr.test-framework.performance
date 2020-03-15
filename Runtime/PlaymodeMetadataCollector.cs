@@ -116,8 +116,12 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             ProcessorCount = SystemInfo.processorCount,
             GraphicsDeviceName = SystemInfo.graphicsDeviceName,
             SystemMemorySize = SystemInfo.systemMemorySize,
-            XrModel = string.Format("deviceuniqueid|{0}|username|{1}", SystemInfo.deviceUniqueIdentifier, settings.Username),
 #if ENABLE_VR
+#if UNITY_2020_1_OR_NEWER || OCULUS_SDK
+            XrModel = string.Format("deviceuniqueid|{0}|username|{1}", SystemInfo.deviceUniqueIdentifier, settings.Username),
+#else
+            XrModel = UnityEngine.XR.XRDevice.model,
+#endif
             XrDevice = UnityEngine.XR.XRSettings.loadedDeviceName
 #endif
         };
@@ -194,7 +198,9 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
     private static Unity.PerformanceTesting.PlayerSettings GetPlayerSettings(
         Unity.PerformanceTesting.PlayerSettings playerSettings)
     {
+#if !UNITY_2020_1_OR_NEWER
         playerSettings.VrSupported = UnityEditor.PlayerSettings.virtualRealitySupported;
+#endif
         playerSettings.MtRendering = UnityEditor.PlayerSettings.MTRendering;
         playerSettings.GpuSkinning = UnityEditor.PlayerSettings.gpuSkinning;
         playerSettings.GraphicsJobs = UnityEditor.PlayerSettings.graphicsJobs;
@@ -217,15 +223,27 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
         playerSettings.RenderThreadingMode = UnityEditor.PlayerSettings.graphicsJobs ? "GraphicsJobs" :
             UnityEditor.PlayerSettings.MTRendering ? "MultiThreaded" : "SingleThreaded";
         playerSettings.Batchmode = UnityEditorInternal.InternalEditorUtility.inBatchMode.ToString();
+#if !UNITY_2020_1_OR_NEWER
         playerSettings.EnabledXrTargets = new List<string>(UnityEditor.PlayerSettings.GetVirtualRealitySDKs(EditorUserBuildSettings.selectedBuildTargetGroup));
         playerSettings.EnabledXrTargets.Sort();
+        playerSettings.EnabledXrTargets = new List<string>();
+#else
+        playerSettings.EnabledXrTargets = new List<string>();
+#endif
         playerSettings.ScriptingBackend =
             UnityEditor.PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup).ToString();
 
         // We're hijacking these two fields to store package info in
+#if !UNITY_2020_1_OR_NEWER
+        playerSettings.ScriptingRuntimeVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? "" : string.Format("{0}|{1}", settings.PluginVersion, settings.DeviceRuntimeVersion);
+        playerSettings.AndroidMinimumSdkVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? UnityEditor.PlayerSettings.Android.minSdkVersion.ToString() : settings.XrManagementRevision;
+        playerSettings.AndroidTargetSdkVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? UnityEditor.PlayerSettings.Android.targetSdkVersion.ToString() : settings.XrsdkRevision;
+#else
         playerSettings.ScriptingRuntimeVersion = string.Format("{0}|{1}", settings.PluginVersion, settings.DeviceRuntimeVersion);
         playerSettings.AndroidMinimumSdkVersion = settings.XrManagementRevision;
         playerSettings.AndroidTargetSdkVersion = settings.XrsdkRevision;
+#endif
+
         return playerSettings;
     }
 
