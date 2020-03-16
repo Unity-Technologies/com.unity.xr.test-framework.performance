@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using com.unity.xr.test.runtimesettings;
 #endif
 using UnityEditor;
+using UnityEngine.Rendering;
 
 [Category("Performance")]
 public class PlaymodeMetadataCollector : IPrebuildSetup
@@ -234,16 +235,16 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             UnityEditor.PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup).ToString();
 
         // We're hijacking these two fields to store package info in
+        string tempExtraMetadata = string.Format("{0}|{1}|{2}", settings.PluginVersion, settings.DeviceRuntimeVersion, settings.RenderPipeline);
 #if !UNITY_2020_1_OR_NEWER
-        playerSettings.ScriptingRuntimeVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? "" : string.Format("{0}|{1}", settings.PluginVersion, settings.DeviceRuntimeVersion);
+        playerSettings.ScriptingRuntimeVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? "" : string.Format("{0}", tempExtraMetadata);
         playerSettings.AndroidMinimumSdkVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? UnityEditor.PlayerSettings.Android.minSdkVersion.ToString() : settings.XrManagementRevision;
         playerSettings.AndroidTargetSdkVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? UnityEditor.PlayerSettings.Android.targetSdkVersion.ToString() : settings.XrsdkRevision;
 #else
-        playerSettings.ScriptingRuntimeVersion = string.Format("{0}|{1}", settings.PluginVersion, settings.DeviceRuntimeVersion);
+        playerSettings.ScriptingRuntimeVersion = string.Format("{0}", tempExtraMetadata);
         playerSettings.AndroidMinimumSdkVersion = settings.XrManagementRevision;
         playerSettings.AndroidTargetSdkVersion = settings.XrsdkRevision;
 #endif
-
         return playerSettings;
     }
 
