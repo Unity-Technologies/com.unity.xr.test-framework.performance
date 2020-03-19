@@ -217,17 +217,15 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android ? 
                 settings.StereoRenderingModeAndroid : 
                 settings.StereoRenderingModeDesktop;
-        
 #else
         playerSettings.StereoRenderingPath = UnityEditor.PlayerSettings.stereoRenderingPath.ToString();
 #endif
         playerSettings.RenderThreadingMode = UnityEditor.PlayerSettings.graphicsJobs ? "GraphicsJobs" :
             UnityEditor.PlayerSettings.MTRendering ? "MultiThreaded" : "SingleThreaded";
         playerSettings.Batchmode = UnityEditorInternal.InternalEditorUtility.inBatchMode.ToString();
-#if !UNITY_2020_1_OR_NEWER
+#if !UNITY_2020_1_OR_NEWER // EnabledXrTargets is only populated for builtin VR, and builtin VR is not supported for 2020.1 or newer
         playerSettings.EnabledXrTargets = new List<string>(UnityEditor.PlayerSettings.GetVirtualRealitySDKs(EditorUserBuildSettings.selectedBuildTargetGroup));
         playerSettings.EnabledXrTargets.Sort();
-        playerSettings.EnabledXrTargets = new List<string>();
 #else
         playerSettings.EnabledXrTargets = new List<string>();
 #endif
