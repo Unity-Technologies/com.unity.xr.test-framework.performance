@@ -276,6 +276,11 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             metadata.Append(string.Format("|{0}", settings.XrsdkRevision));
         }
 
+        if (!string.IsNullOrEmpty(settings.FfrLevel))
+        {
+            metadata.Append(string.Format("|{0}", settings.FfrLevel));
+        }
+
         return metadata.ToString().TrimStart('|');
     }
 
