@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.TestTools;
 using System.Collections.Generic;
+using System.Text;
 #if ENABLE_VR
 using com.unity.xr.test.runtimesettings;
 #endif
@@ -118,9 +119,7 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             GraphicsDeviceName = SystemInfo.graphicsDeviceName,
             SystemMemorySize = SystemInfo.systemMemorySize,
 #if ENABLE_VR
-#if UNITY_2020_1_OR_NEWER || OCULUS_SDK
-            XrModel = string.Format("deviceuniqueid|{0}|username|{1}", SystemInfo.deviceUniqueIdentifier, settings.Username),
-#else
+#if !UNITY_2020_1_OR_NEWER
             XrModel = UnityEngine.XR.XRDevice.model,
 #endif
             XrDevice = UnityEngine.XR.XRSettings.loadedDeviceName
@@ -133,7 +132,7 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
         return new Unity.PerformanceTesting.QualitySettings()
         {
             Vsync = UnityEngine.QualitySettings.vSyncCount,
-            AntiAliasing = UnityEngine.QualitySettings.antiAliasing,
+            AntiAliasing = settings.AntiAliasing,
             ColorSpace = UnityEngine.QualitySettings.activeColorSpace.ToString(),
             AnisotropicFiltering = UnityEngine.QualitySettings.anisotropicFiltering.ToString(),
 #if UNITY_2019_1_OR_NEWER
@@ -231,19 +230,53 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
 #endif
         playerSettings.ScriptingBackend =
             UnityEditor.PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup).ToString();
-
-        // We're hijacking these two fields to store package info in
-        string tempExtraMetadata = string.Format("{0}|{1}|{2}", settings.PluginVersion, settings.DeviceRuntimeVersion, settings.RenderPipeline);
-#if !UNITY_2020_1_OR_NEWER
-        playerSettings.ScriptingRuntimeVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? "" : string.Format("{0}", tempExtraMetadata);
-        playerSettings.AndroidMinimumSdkVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? UnityEditor.PlayerSettings.Android.minSdkVersion.ToString() : settings.XrManagementRevision;
-        playerSettings.AndroidTargetSdkVersion = UnityEditor.PlayerSettings.virtualRealitySupported ? UnityEditor.PlayerSettings.Android.targetSdkVersion.ToString() : settings.XrsdkRevision;
-#else
-        playerSettings.ScriptingRuntimeVersion = string.Format("{0}", tempExtraMetadata);
-        playerSettings.AndroidMinimumSdkVersion = settings.XrManagementRevision;
-        playerSettings.AndroidTargetSdkVersion = settings.XrsdkRevision;
-#endif
+        
+        playerSettings.ScriptingRuntimeVersion = GetAdditionalMetadata();
+        playerSettings.AndroidMinimumSdkVersion =  UnityEditor.PlayerSettings.Android.minSdkVersion.ToString();
+        playerSettings.AndroidTargetSdkVersion = UnityEditor.PlayerSettings.Android.targetSdkVersion.ToString();
         return playerSettings;
+    }
+
+    private static string GetAdditionalMetadata()
+    {
+        StringBuilder metadata = new StringBuilder();
+
+        if (!string.IsNullOrEmpty(SystemInfo.deviceUniqueIdentifier))
+        {
+            metadata.Append(string.Format("|deviceuniqueid|{0}", SystemInfo.deviceUniqueIdentifier));
+        }
+
+        if (!string.IsNullOrEmpty(settings.Username))
+        {
+            metadata.Append(string.Format("|username|{0}", settings.Username));
+        }
+
+        if (!string.IsNullOrEmpty(settings.PluginVersion))
+        {
+            metadata.Append(string.Format("|{0}", settings.PluginVersion));
+        }
+
+        if (!string.IsNullOrEmpty(settings.DeviceRuntimeVersion))
+        {
+            metadata.Append(string.Format("|{0}", settings.DeviceRuntimeVersion));
+        }
+
+        if (!string.IsNullOrEmpty(settings.RenderPipeline))
+        {
+            metadata.Append(string.Format("|{0}", settings.RenderPipeline));
+        }
+
+        if (!string.IsNullOrEmpty(settings.XrManagementRevision))
+        {
+            metadata.Append(string.Format("|{0}", settings.XrManagementRevision));
+        }
+
+        if (!string.IsNullOrEmpty(settings.XrsdkRevision))
+        {
+            metadata.Append(string.Format("|{0}", settings.XrsdkRevision));
+        }
+
+        return metadata.ToString().TrimStart('|');
     }
 
     private static BuildSettings GetPlayerBuildInfo()
