@@ -281,6 +281,26 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             metadata.Append(string.Format("|{0}", settings.FfrLevel));
         }
 
+        if (!string.IsNullOrEmpty(settings.TestsBranch))
+        {
+            metadata.Append(string.Format("|{0}", settings.TestsBranch));
+        }
+
+        if (!string.IsNullOrEmpty(settings.TestsRevision))
+        {
+            metadata.Append(string.Format("|{0}", settings.TestsRevision));
+        }
+
+        if (!string.IsNullOrEmpty(settings.TestsRevisionDate))
+        {
+            metadata.Append(string.Format("|{0}", settings.TestsRevisionDate));
+        }
+
+        if (!string.IsNullOrEmpty(settings.PerfTestsPackageRevision))
+        {
+            metadata.Append(string.Format("|{0}", settings.PerfTestsPackageRevision));
+        }
+
         return metadata.ToString().TrimStart('|');
     }
 
