@@ -301,6 +301,11 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             metadata.Append(string.Format("|{0}", settings.PerfTestsPackageRevision));
         }
 
+        if (!string.IsNullOrEmpty(settings.AndroidTargetArchitecture))
+        {
+            metadata.Append(string.Format("|{0}", settings.AndroidTargetArchitecture));
+        }
+
         return metadata.ToString().TrimStart('|');
     }
 
