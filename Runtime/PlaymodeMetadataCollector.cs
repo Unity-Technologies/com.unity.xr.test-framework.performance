@@ -276,6 +276,16 @@ public class PlaymodeMetadataCollector : IPrebuildSetup
             metadata.Append(string.Format("|{0}", settings.XrsdkRevision));
         }
 
+        if (!string.IsNullOrEmpty(settings.UrpPackageVersionInfo))
+        {
+            metadata.Append(string.Format("|{0}", settings.UrpPackageVersionInfo));
+        }
+
+        if (!string.IsNullOrEmpty(settings.HdrpPackageVersionInfo))
+        {
+            metadata.Append(string.Format("|{0}", settings.HdrpPackageVersionInfo));
+        }
+
         if (!string.IsNullOrEmpty(settings.FfrLevel))
         {
             metadata.Append(string.Format("|{0}", settings.FfrLevel));
