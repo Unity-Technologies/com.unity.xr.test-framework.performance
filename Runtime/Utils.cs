@@ -158,7 +158,9 @@ namespace Unity.PerformanceTesting.Runtime
                 GraphicsDeviceName = SystemInfo.graphicsDeviceName,
                 SystemMemorySize = SystemInfo.systemMemorySize,
 #if ENABLE_VR
+#if !UNITY_2020_1_OR_NEWER
                 XrModel = UnityEngine.XR.XRDevice.model,
+#endif
                 XrDevice = UnityEngine.XR.XRSettings.loadedDeviceName
 #endif
             };
