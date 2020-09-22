@@ -1,14 +1,21 @@
 {
     "name": "Unity.PerformanceTesting.Editor",
     "references": [
-        "Unity.PerformanceTesting"
-    ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+        "Unity.PerformanceTesting",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "com.unity.xr.tests.runtimesettings"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": []
 }

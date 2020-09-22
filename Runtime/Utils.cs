@@ -9,7 +9,10 @@ namespace Unity.PerformanceTesting.Runtime
 {
     public static class Utils
     {
-        public static Guid ProfileDataMsg = new Guid("f65778bc-f144-4821-8491-ef2552d7f392");
+        public static string ResourcesPath => Path.Combine(Application.dataPath, "Resources");
+        public static string TestRunPath => Path.Combine(ResourcesPath, TestRunInfo);
+        public const string TestRunInfo = "PerformanceTestRunInfo.json";
+        public const string PlayerPrefKeyRunJSON = "PT_Run";
 
         public static double DateToInt(DateTime date)
         {
@@ -140,57 +143,10 @@ namespace Unity.PerformanceTesting.Runtime
 
             foreach (char c in invalid)
             {
-                path = path.Replace(c.ToString(), ""); 
+                path = path.Replace(c.ToString(), "");
             }
 
             return path;
-        }
-
-        public static PlayerSystemInfo GetSystemInfo()
-        {
-            return new PlayerSystemInfo
-            {
-                OperatingSystem = SystemInfo.operatingSystem,
-                DeviceModel = SystemInfo.deviceModel,
-                DeviceName = SystemInfo.deviceName,
-                ProcessorType = SystemInfo.processorType,
-                ProcessorCount = SystemInfo.processorCount,
-                GraphicsDeviceName = SystemInfo.graphicsDeviceName,
-                SystemMemorySize = SystemInfo.systemMemorySize,
-#if ENABLE_VR
-#if !UNITY_2020_1_OR_NEWER
-                XrModel = UnityEngine.XR.XRDevice.model,
-#endif
-                XrDevice = UnityEngine.XR.XRSettings.loadedDeviceName
-#endif
-            };
-        }
-
-        public static Unity.PerformanceTesting.QualitySettings GetQualitySettings()
-        {
-            return new Unity.PerformanceTesting.QualitySettings
-            {
-                Vsync = UnityEngine.QualitySettings.vSyncCount,
-                AntiAliasing = UnityEngine.QualitySettings.antiAliasing,
-                ColorSpace = UnityEngine.QualitySettings.activeColorSpace.ToString(),
-                AnisotropicFiltering = UnityEngine.QualitySettings.anisotropicFiltering.ToString(),
-#if UNITY_2019_1_OR_NEWER
-                BlendWeights = UnityEngine.QualitySettings.skinWeights.ToString()
-#else
-                BlendWeights = UnityEngine.QualitySettings.blendWeights.ToString()
-#endif
-            };
-        }
-
-        public static ScreenSettings GetScreenSettings()
-        {
-            return new ScreenSettings
-            {
-                ScreenRefreshRate = Screen.currentResolution.refreshRate,
-                ScreenWidth = Screen.currentResolution.width,
-                ScreenHeight = Screen.currentResolution.height,
-                Fullscreen = Screen.fullScreen
-            };
         }
 
         public static string GetArg(string name)

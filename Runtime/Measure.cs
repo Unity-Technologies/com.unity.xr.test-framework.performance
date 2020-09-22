@@ -25,30 +25,37 @@ namespace Unity.PerformanceTesting
         {
             return new ScopeMeasurement(sampleGroupDefinition);
         }
-        
+
         public static ProfilerMeasurement ProfilerMarkers(params SampleGroupDefinition[] sampleGroupDefinitions)
         {
             return new ProfilerMeasurement(sampleGroupDefinitions);
         }
-        
+
+        public static ProfilerMeasurement ProfilerMarkers(params string[] profilerMarkerNames)
+        {
+            var definitions = new SampleGroupDefinition[profilerMarkerNames.Length];
+            for (var i = 0; i < profilerMarkerNames.Length; i++)
+                definitions[i] = new SampleGroupDefinition(profilerMarkerNames[i]);
+
+            return new ProfilerMeasurement(definitions);
+        }
+
         public static MethodMeasurement Method(Action action)
         {
             return new MethodMeasurement(action);
         }
-        
+
         public static FramesMeasurement Frames()
         {
             return new FramesMeasurement();
         }
-        
+
         // Overloads
-        
+
         public static ScopeMeasurement Scope()
         {
             return new ScopeMeasurement(new SampleGroupDefinition("Time"));
         }
-
-        
     }
 
     public struct ScopeMeasurement : IDisposable
@@ -91,7 +98,7 @@ namespace Unity.PerformanceTesting
                 m_Test = null;
                 return;
             }
-            
+
             var go = new GameObject("Recorder");
             if (Application.isPlaying) Object.DontDestroyOnLoad(go);
             m_Test = go.AddComponent<ProfilerMarkerMeasurement>();
@@ -107,5 +114,4 @@ namespace Unity.PerformanceTesting
             Object.DestroyImmediate(m_Test.gameObject);
         }
     }
-
 }

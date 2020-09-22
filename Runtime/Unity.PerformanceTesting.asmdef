@@ -1,9 +1,7 @@
 {
     "name": "Unity.PerformanceTesting",
     "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "com.unity.xr.tests.runtimesettings"
+        "UnityEngine.TestRunner"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

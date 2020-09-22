@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Unity.PerformanceTesting.Measurements
@@ -22,6 +24,15 @@ namespace Unity.PerformanceTesting.Measurements
         public FramesMeasurement ProfilerMarkers(params SampleGroupDefinition[] profilerDefinitions)
         {
             m_ProfilerDefinitions = profilerDefinitions;
+            return this;
+        }
+        
+        public FramesMeasurement ProfilerMarkers(params string[] profilerMarkerNames)
+        {
+            var definitions = new SampleGroupDefinition[profilerMarkerNames.Length];
+            for (int i = 0; i < profilerMarkerNames.Length; i++)
+                definitions[i] = new SampleGroupDefinition(profilerMarkerNames[i]);
+            m_ProfilerDefinitions = definitions;
             return this;
         }
 
@@ -108,16 +119,16 @@ namespace Unity.PerformanceTesting.Measurements
 
         private IEnumerator GetDesiredIterationCount()
         {
-            var executionTime = 0.0f;
+            var executionTime = 0.0D;
             var iterations = 1;
 
             while (executionTime < k_MinWarmupTimeMs)
             {
-                executionTime = Time.realtimeSinceStartup;
+                var sw = Stopwatch.GetTimestamp();
 
                 yield return WaitFor(iterations);
 
-                executionTime = (Time.realtimeSinceStartup - executionTime) * 1000f;
+                executionTime = TimeSpan.FromTicks(Stopwatch.GetTimestamp()-sw).TotalMilliseconds;
 
                 if (iterations == 1 && executionTime > 40)
                 {

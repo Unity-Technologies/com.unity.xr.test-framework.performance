@@ -25,6 +25,19 @@ namespace Unity.PerformanceTesting
             {
                 foreach (var sample in test.SampleGroups)
                 {
+                    if (sample.Definition.Name == "Time")
+                    {
+                        deviation = sample.StandardDeviation;
+                        median = sample.Median;
+                        break;
+                    }
+
+                    if (sample.Samples.Count <= 1)
+                    {
+                        median = sample.Median;
+                        break;
+                    }
+
                     if (sample.StandardDeviation > deviation)
                         standardDeviation = sample.StandardDeviation;
 

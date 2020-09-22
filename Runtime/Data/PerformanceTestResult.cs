@@ -12,6 +12,7 @@ namespace Unity.PerformanceTesting
         public ScreenSettings ScreenSettings;
         public QualitySettings QualitySettings;
         public PlayerSettings PlayerSettings;
+        public PerformanceProjectVersion ProjectVersion;
         public string TestSuite;
         public double StartTime;
         public double EndTime;

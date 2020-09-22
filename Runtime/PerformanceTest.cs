@@ -4,6 +4,7 @@ using System.Text;
 using Unity.PerformanceTesting.Runtime;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
+using Unity.PerformanceTesting.Exceptions;
 using UnityEngine;
 using UnityEngine.TestRunner.NUnitExtensions;
 
@@ -22,6 +23,7 @@ namespace Unity.PerformanceTesting
 
         public static PerformanceTest Active { get; private set; }
         internal static List<IDisposable> Disposables = new List<IDisposable>(1024);
+        PerformanceTestHelper m_PerformanceTestHelper;
 
         public delegate void Callback();
 
@@ -31,18 +33,37 @@ namespace Unity.PerformanceTesting
         {
             Active = this;
         }
+        
+        class PerformanceTestHelper : MonoBehaviour
+        {
+            public PerformanceTest ActiveTest;
+
+            void OnEnable()
+            {
+                if (PerformanceTest.Active == null)
+                    PerformanceTest.Active = ActiveTest;
+            }
+        }
 
         internal static void StartTest(ITest currentTest)
         {
             if (currentTest.IsSuite) return;
-            Active = new PerformanceTest
+            
+            var go = new GameObject("PerformanceTestHelper");
+            go.hideFlags = HideFlags.HideAndDontSave;
+            var performanceTestHelper = go.AddComponent<PerformanceTestHelper>();
+
+            var test = new PerformanceTest
             {
                 TestName = currentTest.FullName,
                 TestCategories = currentTest.GetAllCategoriesFromTest(),
-                TestVersion = GetVersion(currentTest)
+                TestVersion = GetVersion(currentTest),
+                StartTime = Utils.DateToInt(DateTime.Now),
+                m_PerformanceTestHelper = performanceTestHelper
             };
 
-            Active.StartTime = Utils.DateToInt(DateTime.Now);
+            Active = test;
+            performanceTestHelper.ActiveTest = test;
         }
 
         private static string GetVersion(ITest currentTest)
@@ -66,6 +87,9 @@ namespace Unity.PerformanceTesting
             if (test.IsSuite) return;
             if (test.FullName != Active.TestName) return;
 
+            if (Active.m_PerformanceTestHelper != null && Active.m_PerformanceTestHelper.gameObject != null)
+                UnityEngine.Object.DestroyImmediate(Active.m_PerformanceTestHelper.gameObject);
+            
             DisposeMeasurements();
             Active.CalculateStatisticalValues();
             Active.EndTime = Utils.DateToInt(DateTime.Now);
@@ -86,7 +110,9 @@ namespace Unity.PerformanceTesting
                 }
             }
 #endif
+            TestContext.Out.WriteLine("##performancetestresult2:" + JsonUtility.ToJson(Active));
             TestContext.Out.WriteLine("##performancetestresult:" + JsonUtility.ToJson(Active));
+            PlayerCallbacks.LogMetadata();
             Active = null;
             GC.Collect();
         }
@@ -103,6 +129,7 @@ namespace Unity.PerformanceTesting
 
         public static SampleGroup GetSampleGroup(SampleGroupDefinition definition)
         {
+            if (Active == null) throw new PerformanceTestException("Trying to record samples but there is no active performance tests.");
             foreach (var sampleGroup in Active.SampleGroups)
             {
                 if (sampleGroup.Definition.Name == definition.Name)
