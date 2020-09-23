@@ -215,8 +215,7 @@ namespace Unity.PerformanceTesting.Editor
         {
             try
             {
-                var runResource = Resources.Load<TextAsset>(Utils.TestRunInfo.Replace(".json", ""));
-                var json = Application.isEditor ? PlayerPrefs.GetString(Utils.PlayerPrefKeyRunJSON) : runResource.text;
+                var json = Resources.Load<TextAsset>(Utils.TestRunInfo.Replace(".json", "")).text;
                 return JsonUtility.FromJson<PerformanceTestRun>(json);
             }
             catch
