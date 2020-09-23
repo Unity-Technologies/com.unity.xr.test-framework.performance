@@ -108,7 +108,7 @@ namespace Unity.PerformanceTesting.Editor
 #endif            
 #if !UNITY_2020_1_OR_NEWER // EnabledXrTargets is only populated for builtin VR, and builtin VR is not supported for 2020.1 or newer
             run.PlayerSettings.EnabledXrTargets = new List<string>(UnityEditor.PlayerSettings.GetVirtualRealitySDKs(EditorUserBuildSettings.selectedBuildTargetGroup));
-            run.PlayerSettings.EnabledXrTargets.Sort()
+            run.PlayerSettings.EnabledXrTargets.Sort();
 #else
             run.PlayerSettings.EnabledXrTargets = new List<string>();			
 #endif
@@ -217,7 +217,6 @@ namespace Unity.PerformanceTesting.Editor
             {
                 var runResource = Resources.Load<TextAsset>(Utils.TestRunInfo.Replace(".json", ""));
                 var json = Application.isEditor ? PlayerPrefs.GetString(Utils.PlayerPrefKeyRunJSON) : runResource.text;
-                Resources.UnloadAsset(runResource);
                 return JsonUtility.FromJson<PerformanceTestRun>(json);
             }
             catch
